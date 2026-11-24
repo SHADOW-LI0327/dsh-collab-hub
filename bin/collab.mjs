@@ -17,6 +17,7 @@ Usage:
   collab hub [--port 8787] [--host 127.0.0.1] [--data ./data]
   collab register --name A [--role frontend] [--hub URL]
   collab whoami
+  collab token
   collab member reset --name A [--data ./data]
   collab board [--json]
 
@@ -133,6 +134,13 @@ async function main() {
 			return;
 		}
 		return die('member commands: reset');
+	}
+
+	if (command === 'token') {
+		const config = await loadConfig();
+		if (!config.token) return die('not registered; run collab register first');
+		console.log(config.token);
+		return;
 	}
 
 	if (command === 'whoami') {
