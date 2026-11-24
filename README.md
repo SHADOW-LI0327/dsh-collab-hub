@@ -94,6 +94,7 @@ hub_link(project="shop", feature="FEAT-001")
 
 - `hub_context`：开工先看对方状态 / 问题 / 产物；
 - `hub_health`：不确定 Hub 是否可达时做一次非阻塞检测；
+- `hub_project_create` / `hub_feature_create`：项目或 feature 不存在时由 Agent 自动创建，feature 默认绑定本仓库；
 - `hub_status`：更新“我在做什么”；
 - `hub_publish`：发布设计，带摘要；
 - `hub_question` / `hub_answer`：留问题、回答；
