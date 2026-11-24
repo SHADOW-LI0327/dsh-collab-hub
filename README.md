@@ -7,7 +7,7 @@
 - **成员状态**：A 在做前端弹窗、B 在做后端接口，卡在哪；
 - **设计产物**：图片 / HTML / Markdown 上传成不可变版本，带三行摘要；
 - **问题**：把“要对方确认”的事留在 feature 上，而不是猜；
-- **看板**：浏览器打开就能看到项目、feature、状态和产物。
+- **看板**：浏览器打开就能看到所有项目、feature、状态和产物；只读，不提供创建/上传/回答控件。
 
 Agent 通过 MCP 或 `dsh-process-kit` 的 `hub_*` 工具读写同一份上下文；服务器不跑 Agent，也不碰代码仓库。
 
@@ -24,14 +24,14 @@ node bin/collab.mjs hub --host 0.0.0.0 --port 8787 --data ./data
 - 数据在 `./data`：`state.json` + `blobs/`，备份这个目录即可。
 - 内网没有 TLS 时，建议只绑定内网网卡；要跨网段再加 Caddy/Nginx。
 
-打开 `http://<server>:8787`，注册姓名和角色即可。
+打开 `http://<server>:8787`，粘贴成员 token 即可进入只读看板；项目和 feature 由 CLI / Agent 创建。
 
 ### 2. 创建项目 / feature
 
 ```bash
 # 成员各自注册一次（token 存在 ~/.dsh/collab.json，0600）
 node bin/collab.mjs register --name A --role frontend --hub http://<server>:8787
-node bin/collab.mjs token   # 要登录网页看板时，把这个 token 粘到「已有 token」
+node bin/collab.mjs token   # 登录网页看板时，把这个 token 粘到输入框
 
 # 负责人创建项目和 feature
 node bin/collab.mjs project create shop --name "电商平台" --repos web,api

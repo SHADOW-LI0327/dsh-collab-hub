@@ -10,19 +10,11 @@
   <section id="login" class="login">
     <div class="login-card">
       <div class="brand">Collab Hub</div>
-      <p class="muted">团队共享的 feature 上下文：谁在做什么、设计产物、待回答问题。</p>
-      <form id="register-form" class="stack">
-        <label>名字<input name="name" required maxlength="40" placeholder="A / 小张"></label>
-        <label>角色<input name="role" maxlength="40" placeholder="frontend / backend / pm"></label>
-        <button type="submit">注册并加入</button>
+      <p class="muted">内部只读看板：查看所有项目、feature、成员状态、设计产物和待回答问题。写操作由 Agent / CLI 完成。</p>
+      <form id="token-form" class="stack">
+        <label>成员 token（由 collab register 生成）<input name="token" required placeholder="col_..."></label>
+        <button type="submit">进入看板</button>
       </form>
-      <details class="token-details">
-        <summary>已有 token</summary>
-        <form id="token-form" class="stack">
-          <label>成员 token<input name="token" required placeholder="col_..."></label>
-          <button type="submit" class="secondary">使用 token</button>
-        </form>
-      </details>
       <p id="login-error" class="error" hidden></p>
     </div>
   </section>
@@ -38,36 +30,15 @@
 
     <div class="layout">
       <aside class="sidebar">
-        <div class="section-head">
-          <span>项目</span>
-          <button id="new-project-toggle" class="small" type="button">+ 项目</button>
-        </div>
+        <div class="section-head"><span>项目</span></div>
         <div id="projects" class="project-list"></div>
-        <form id="project-form" class="stack card" hidden>
-          <label>ID<input name="id" required placeholder="shop"></label>
-          <label>名称<input name="name" required placeholder="电商平台"></label>
-          <label>仓库（逗号分隔）<input name="repos" placeholder="web,api"></label>
-          <button type="submit">创建项目</button>
-          <button type="button" class="secondary" data-cancel="project-form">取消</button>
-        </form>
 
-        <div class="section-head features-head">
-          <span>Feature</span>
-          <button id="new-feature-toggle" class="small" type="button" disabled>+ Feature</button>
-        </div>
+        <div class="section-head features-head"><span>Feature</span></div>
         <div id="features" class="feature-list"></div>
-        <form id="feature-form" class="stack card" hidden>
-          <label>ID<input name="id" required placeholder="FEAT-001"></label>
-          <label>标题<input name="title" required placeholder="退款流程"></label>
-          <label>仓库（逗号分隔）<input name="repos" placeholder="web,api"></label>
-          <label>目标 / 非目标<textarea name="brief" rows="3"></textarea></label>
-          <button type="submit">创建 Feature</button>
-          <button type="button" class="secondary" data-cancel="feature-form">取消</button>
-        </form>
       </aside>
 
       <main id="detail" class="detail">
-        <div class="empty">选择或创建一个 feature。</div>
+        <div class="empty">选择一个 feature 查看。</div>
       </main>
     </div>
   </section>

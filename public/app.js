@@ -251,7 +251,7 @@ function renderSidebar() {
   projectWrap.replaceChildren();
   const projects = state.board?.projects ?? [];
   if (!projects.length) {
-    projectWrap.append(el('div', { class: 'muted', text: '还没有项目，点右上角「+ 项目」创建一个。' }));
+    projectWrap.append(el('div', { class: 'muted', text: '还没有项目。项目 / feature 由 Agent 或 CLI 创建。' }));
   }
   for (const project of projects) {
     const active = project.id === state.projectId;
@@ -268,7 +268,6 @@ function renderSidebar() {
   featureWrap.replaceChildren();
   if (!project) {
     featureWrap.append(el('div', { class: 'muted', text: '先选择项目。' }));
-    $('#new-feature-toggle').disabled = true;
     return;
   }
   if (!project.features.length) {
@@ -286,7 +285,6 @@ function renderSidebar() {
     );
     featureWrap.append(button);
   }
-  $('#new-feature-toggle').disabled = false;
 }
 
 function selectProject(projectId) {
@@ -321,7 +319,7 @@ function renderDetail() {
   detail.replaceChildren();
   const ctx = state.ctx;
   if (!ctx) {
-    detail.append(el('div', { class: 'empty', text: '选择或创建一个 feature。' }));
+    detail.append(el('div', { class: 'empty', text: '选择一个 feature 查看。' }));
     return;
   }
   const feature = ctx.feature;
@@ -353,12 +351,8 @@ function renderDetail() {
   detail.append(renderArtifacts(ctx));
 
   const grid = el('div', { class: 'grid2' });
-  const left = el('div');
-  left.append(renderMembers(ctx), renderQuestions(ctx), renderEvents(ctx));
-  const right = el('div');
-  right.append(renderStatusForm(ctx), renderUploadForm(ctx), renderHandoffForm(ctx));
-  grid.append(left, right);
-  detail.append(grid);
+  grid.append(renderMembers(ctx), renderQuestions(ctx));
+  detail.append(grid, renderEvents(ctx));
 }
 
 function renderMembers(ctx) {
@@ -463,22 +457,7 @@ function renderQuestions(ctx) {
     item.append(el('div', { class: 'qmeta', text: `${question.author} · ${age(question.createdAt)}${question.status === 'answered' ? ` · ${question.answeredByName}` : ''}` }));
     item.append(el('div', { class: 'q', text: question.text }));
     if (question.status === 'open') {
-      const input = el('input', { placeholder: '回答…', maxlength: '2000' });
-      const form = el(
-        'form',
-        { onSubmit: async (event) => {
-            event.preventDefault();
-            if (!input.value.trim()) return;
-            try {
-              await api(`/api/questions/${encodeURIComponent(question.id)}/answer`, { method: 'POST', body: { text: input.value.trim() } });
-              showToast('已回答');
-              await refreshContext(false);
-            } catch (error) { showToast(error.message); }
-          } },
-        input,
-        el('button', { type: 'submit', class: 'small', text: '回答' }),
-      );
-      item.append(form);
+      item.append(el('div', { class: 'muted', text: '等待 Agent 回答' }));
     } else {
       item.append(el('div', { class: 'answer' }, el('div', { class: 'alabel', text: '回答' }), el('div', { text: question.answer })));
     }
@@ -501,119 +480,7 @@ function renderEvents(ctx) {
   return panel;
 }
 
-function renderStatusForm(ctx) {
-  const current = ctx.statuses?.find((status) => status.member === state.me?.name);
-  const select = el(
-    'select',
-    { name: 'state' },
-    ...['idle', 'designing', 'implementing', 'reviewing', 'blocked', 'done'].map((value) =>
-      el('option', { value, text: value, selected: current?.state === value }),
-    ),
-  );
-  const focus = el('input', { name: 'focus', placeholder: '当前在做什么', value: current?.focus ?? '', maxlength: '500' });
-  const blocker = el('input', { name: 'blocker', placeholder: '阻塞（可选）', value: current?.blocker ?? '', maxlength: '500' });
-  const form = el(
-    'form',
-    { class: 'stack', onSubmit: async (event) => {
-        event.preventDefault();
-        try {
-          await api(`/api/features/${encodeURIComponent(ctx.feature.id)}/status`, {
-            method: 'POST',
-            body: { state: select.value, focus: focus.value, blocker: blocker.value },
-          });
-          showToast('状态已更新');
-          await refreshContext(false);
-        } catch (error) { showToast(error.message); }
-      } },
-    select,
-    focus,
-    blocker,
-    el('button', { type: 'submit', text: '更新我的状态' }),
-  );
-  return el('section', { class: 'panel' }, el('h2', { text: '我的状态' }), form);
-}
-
-function renderUploadForm(ctx) {
-  const file = el('input', { type: 'file', name: 'file', accept: 'image/*,.html,.htm,.md,.markdown,.txt,.pdf' });
-  const kind = el('select', { name: 'kind' }, ...['design', 'report', 'contract', 'note', 'other'].map((value) => el('option', { value, text: value })));
-  const summary = el('input', { name: 'summary', placeholder: '三行摘要（给另一个 agent 看）', maxlength: '500' });
-  const form = el(
-    'form',
-    { class: 'stack', onSubmit: async (event) => {
-        event.preventDefault();
-        if (!file.files?.[0]) return showToast('先选一个文件');
-        if (!summary.value.trim()) return showToast('写一句摘要，另一边的 agent 才知道这是什么');
-        const data = new FormData();
-        data.append('file', file.files[0]);
-        data.append('kind', kind.value);
-        data.append('summary', summary.value.trim());
-        try {
-          await api(`/api/features/${encodeURIComponent(ctx.feature.id)}/artifacts`, { method: 'POST', body: data });
-          showToast('产物已发布');
-          await refreshContext(false);
-        } catch (error) { showToast(error.message); }
-      } },
-    file,
-    kind,
-    summary,
-    el('button', { type: 'submit', text: '发布产物' }),
-  );
-  return el('section', { class: 'panel' }, el('h2', { text: '上传设计 / 报告' }), form);
-}
-
-function renderHandoffForm(ctx) {
-  const note = el('textarea', { rows: '3', placeholder: '交接：做了什么、下一步、风险' });
-  const form = el(
-    'form',
-    { class: 'stack', onSubmit: async (event) => {
-        event.preventDefault();
-        if (!note.value.trim()) return;
-        try {
-          await api(`/api/features/${encodeURIComponent(ctx.feature.id)}/handoff`, { method: 'POST', body: { note: note.value.trim() } });
-          note.value = '';
-          showToast('交接已记录');
-          await refreshContext(false);
-        } catch (error) { showToast(error.message); }
-      } },
-    note,
-    el('button', { type: 'submit', text: '记录交接' }),
-  );
-  return el('section', { class: 'panel' }, el('h2', { text: '交接' }), form);
-}
-
-async function boot() {
-  bindUi();
-  if (!state.token) {
-    showLogin();
-    return;
-  }
-  try {
-    const { member } = await api('/api/me');
-    state.me = member;
-    showApp();
-    await refreshBoard(false);
-  } catch (error) {
-    showLogin(error.message);
-  }
-}
-
 function bindUi() {
-  $('#register-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    try {
-      const result = await api('/api/register', { method: 'POST', body: { name: data.get('name'), role: data.get('role') } });
-      setSession(result.token);
-      state.me = result.member;
-      showApp();
-      await refreshBoard(false);
-    } catch (error) {
-      const box = $('#login-error');
-      box.textContent = error.message;
-      box.hidden = false;
-    }
-  });
-
   $('#token-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const token = new FormData(event.currentTarget).get('token').trim();
@@ -631,63 +498,6 @@ function bindUi() {
   });
 
   $('#logout').addEventListener('click', () => logout());
-
-  $('#new-project-toggle').addEventListener('click', () => {
-    const form = $('#project-form');
-    form.hidden = !form.hidden;
-    if (!form.hidden) form.querySelector('input[name="id"]').focus();
-  });
-  $('#new-feature-toggle').addEventListener('click', () => {
-    const form = $('#feature-form');
-    form.hidden = !form.hidden;
-    if (!form.hidden) form.querySelector('input[name="id"]').focus();
-  });
-  for (const button of document.querySelectorAll('[data-cancel]')) {
-    button.addEventListener('click', () => { $(`#${button.dataset.cancel}`).hidden = true; });
-  }
-
-  $('#project-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    try {
-      await api('/api/projects', {
-        method: 'POST',
-        body: {
-          id: data.get('id'),
-          name: data.get('name'),
-          repos: String(data.get('repos') ?? '').split(',').map((value) => value.trim()).filter(Boolean),
-        },
-      });
-      event.currentTarget.reset();
-      event.currentTarget.hidden = true;
-      showToast('项目已创建');
-      await refreshBoard(false);
-      state.projectId = String(data.get('id'));
-      await refreshBoard(false);
-    } catch (error) { showToast(error.message); }
-  });
-
-  $('#feature-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!state.projectId) return showToast('先选择项目');
-    const data = new FormData(event.currentTarget);
-    try {
-      const feature = await api(`/api/projects/${encodeURIComponent(state.projectId)}/features`, {
-        method: 'POST',
-        body: {
-          id: data.get('id'),
-          title: data.get('title'),
-          repos: String(data.get('repos') ?? '').split(',').map((value) => value.trim()).filter(Boolean),
-          brief: data.get('brief'),
-        },
-      });
-      event.currentTarget.reset();
-      event.currentTarget.hidden = true;
-      state.featureId = feature.id;
-      showToast('Feature 已创建');
-      await refreshBoard(false);
-    } catch (error) { showToast(error.message); }
-  });
 }
 
 void boot();
