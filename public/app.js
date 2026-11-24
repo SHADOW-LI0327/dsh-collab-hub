@@ -196,9 +196,10 @@ function renderMarkdown(source) {
 }
 
 async function signedUrl(artifactId) {
-  if (state.signed.has(artifactId)) return state.signed.get(artifactId);
-  const { url } = await api(`/api/artifacts/${encodeURIComponent(artifactId)}/url`);
-  state.signed.set(artifactId, url);
+  const cached = state.signed.get(artifactId);
+  if (cached && cached.expiresAt - Date.now() > 60000) return cached.url;
+  const { url, expiresAt } = await api(`/api/artifacts/${encodeURIComponent(artifactId)}/url`);
+  state.signed.set(artifactId, { url, expiresAt: expiresAt ?? Date.now() + 9 * 60 * 1000 });
   return url;
 }
 
