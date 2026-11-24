@@ -31,6 +31,7 @@ node bin/collab.mjs hub --host 0.0.0.0 --port 8787 --data ./data
 ```bash
 # 成员各自注册一次（token 存在 ~/.dsh/collab.json，0600）
 node bin/collab.mjs register --name A --role frontend --hub http://<server>:8787
+node bin/collab.mjs token   # 要登录网页看板时，把这个 token 粘到「已有 token」
 
 # 负责人创建项目和 feature
 node bin/collab.mjs project create shop --name "电商平台" --repos web,api
