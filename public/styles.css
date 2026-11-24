@@ -195,7 +195,26 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospac
 .markdown code { background: var(--bg); padding: 1px 4px; border-radius: 4px; }
 .markdown pre { background: var(--bg); padding: 10px; border-radius: 8px; overflow: auto; }
 .markdown a { color: var(--accent); }
-.artifact pre.raw { max-height: 320px; overflow: auto; background: var(--bg); padding: 10px; border-radius: 8px; }
+.markdown h4, .markdown h5, .markdown h6 { margin: 10px 0 5px; font-size: 14px; }
+.markdown ol { margin: 6px 0; padding-left: 22px; }
+.markdown li { margin: 2px 0; }
+.markdown li > ul, .markdown li > ol { margin: 3px 0; }
+.markdown blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--line); color: var(--muted); background: var(--bg); border-radius: 0 6px 6px 0; }
+.markdown hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }
+.markdown img { max-width: 100%; height: auto; border-radius: 6px; display: block; margin: 8px 0; }
+.markdown pre { white-space: pre; }
+.markdown pre code { background: transparent; padding: 0; }
+.markdown table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; }
+.markdown th, .markdown td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; }
+.markdown th { background: var(--bg); text-align: left; }
+.markdown .md-table { overflow-x: auto; }
+.markdown .md-align-center { text-align: center; }
+.markdown .md-align-right { text-align: right; }
+.markdown del { color: var(--muted); }
+".markdown input[type="checkbox"] { width: auto; margin: 0 4px 0 0; vertical-align: -1px; }
+.markdown .md-frontmatter { margin: 4px 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.markdown .md-frontmatter summary { cursor: pointer; padding: 6px 9px; color: var(--muted); font-size: 12px; }
+.markdown .md-frontmatter pre { margin: 0; border-radius: 0 0 8px 8px; }.artifact pre.raw { max-height: 320px; overflow: auto; background: var(--bg); padding: 10px; border-radius: 8px; }
 
 .questions { display: grid; gap: 10px; }
 .question { border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; }
