@@ -1,0 +1,31 @@
+{
+  "name": "dsh-collab-hub",
+  "version": "0.1.0",
+  "description": "Intranet collaboration hub for DSH process teams: shared projects, member status, design artifacts, questions and a read-only board.",
+  "type": "module",
+  "bin": {
+    "collab": "./bin/collab.mjs",
+    "collab-mcp": "./mcp/server.mjs"
+  },
+  "exports": {
+    ".": "./lib/server.mjs",
+    "./client": "./lib/client.mjs",
+    "./mcp": "./mcp/server.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "mcp",
+    "public",
+    "docs",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/collab.mjs hub",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}
