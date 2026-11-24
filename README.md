@@ -103,6 +103,76 @@ hub_link(project="shop", feature="FEAT-001")
 
 `docs/process` 和 journal 仍是每个仓库的真源；Hub 只做跨仓库的上下文层。
 
+## Docker 部署
+
+仓库自带 `Dockerfile` 和 `docker-compose.yml`，零 npm 依赖：
+
+```bash
+cp .env.example .env      # 可选：改 HUB_PORT / TZ
+docker compose up -d --build
+docker compose logs -f
+curl http://127.0.0.1:8787/api/health
+```
+
+默认：
+
+- 端口 `8787`（可用 `HUB_PORT` 改）；
+- 数据持久化在命名卷 `dsh-collab-hub_hub-data`；
+- 容器内以 `node`（uid 1000）运行，`/data` 可写；
+- 自带 `HEALTHCHECK`，`docker compose ps` 会显示 healthy。
+
+### 备份 / 恢复
+
+```bash
+# 备份
+docker compose exec -T hub tar czf - -C /data . > hub-data-$(date +%F).tgz
+
+# 恢复（先停服务，再用临时容器解包并归位权限）
+docker compose stop hub
+docker run --rm -v dsh-collab-hub_hub-data:/data -v "$PWD":/backup node:24-slim \
+  sh -c 'tar xzf /backup/hub-data-2026-11-24.tgz -C /data && chown -R 1000:1000 /data'
+docker compose start hub
+```
+
+### 用目录挂载（可选）
+
+命名卷最省事；要用宿主机目录，把 compose 的 volumes 改成：
+
+```yaml
+volumes:
+  - ./data:/data
+```
+
+然后确保 uid 1000 可写：
+
+```bash
+mkdir -p data && sudo chown -R 1000:1000 data
+```
+
+### 反向代理 / TLS
+
+Hub 自身是内网 HTTP。要跨网段或上 HTTPS，前面加 Caddy/Nginx：
+
+```text
+https://collab.example.com  ->  http://127.0.0.1:8787
+```
+
+只给反代本机端口时，compose 端口改为：
+
+```yaml
+ports:
+  - "127.0.0.1:8787:8787"
+```
+
+### 升级
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+数据在命名卷里，重建镜像不会丢。
+
 ## 数据模型
 
 ```text

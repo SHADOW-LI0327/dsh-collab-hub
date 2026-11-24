@@ -1,0 +1,25 @@
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dsh-collab-hub:0.1.1
+    container_name: dsh-collab-hub
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 10s
+    ports:
+      - "${HUB_PORT:-8787}:8787"
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+    volumes:
+      - hub-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  hub-data:
