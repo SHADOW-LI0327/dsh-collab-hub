@@ -480,6 +480,22 @@ function renderEvents(ctx) {
   return panel;
 }
 
+async function boot() {
+  bindUi();
+  if (!state.token) {
+    showLogin();
+    return;
+  }
+  try {
+    const { member } = await api('/api/me');
+    state.me = member;
+    showApp();
+    await refreshBoard(false);
+  } catch (error) {
+    showLogin(error.message);
+  }
+}
+
 function bindUi() {
   $('#token-form').addEventListener('submit', async (event) => {
     event.preventDefault();
