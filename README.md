@@ -202,6 +202,23 @@ POST /api/features/<id>/archive   {"archived": true}
 - 项目归档会隐藏整个项目；feature 的 `archived` 状态独立保留；
 - Web 看板仍只读，归档/恢复走 CLI 或 MCP。
 
+## API 目录
+
+Hub 的接口清单不写死在客户端或插件里，直接由服务提供：
+
+```text
+GET /api                  → JSON 目录：端点、鉴权方式、MCP 工具、OpenAPI 链接
+GET /api/openapi.json     → OpenAPI 3.1 文档
+GET /api/health           → 健康检查
+```
+
+`/api` 返回的目录里会列出 `POST /api/register`、`/api/features/{id}/context`、
+`/api/features/{id}/artifacts`、归档接口等全部路径和用途；OpenAPI 文档可直接导入
+Postman / Insomnia / 代码生成器。
+
+`dsh-process-kit` 只保留自己的 `hub_*` 工具说明，**不再复制 Hub 的 HTTP API 文档**；
+需要查接口时打开 `/api` 或 `/api/openapi.json`。
+
 ## 数据模型
 
 ```text

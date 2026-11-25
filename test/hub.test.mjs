@@ -19,6 +19,14 @@ test('hub: register, project, feature, status, artifacts, questions, board', asy
     await rm(dir, { recursive: true, force: true });
   });
 
+  const catalog = await json(await fetch(`${base}/api`));
+  assert.equal(catalog.status, 200);
+  assert.ok(catalog.body.endpoints.some((entry) => entry.path === '/api/features/{id}/context'));
+  const spec = await json(await fetch(`${base}/api/openapi.json`));
+  assert.equal(spec.status, 200);
+  assert.equal(spec.body.openapi, '3.1.0');
+  assert.ok(spec.body.paths['/api/features/{id}/context']);
+
   const unauth = await fetch(`${base}/api/board`);
   assert.equal(unauth.status, 401);
 
