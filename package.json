@@ -1,6 +1,6 @@
 {
   "name": "dsh-collab-hub",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Intranet collaboration hub for DSH process teams: shared projects, member status, design artifacts, questions and a read-only board.",
   "type": "module",
   "bin": {

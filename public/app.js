@@ -8,6 +8,7 @@ const state = {
   featureId: null,
   ctx: null,
   signed: new Map(),
+  includeArchived: new URLSearchParams(location.search).get('includeArchived') === '1',
   timer: null,
   busy: false,
 };
@@ -156,7 +157,7 @@ function startPolling() {
 }
 
 async function refreshBoard(quiet = false) {
-  const board = await api('/api/board');
+  const board = await api(`/api/board${state.includeArchived ? '?includeArchived=1' : ''}`);
   state.board = board;
   if (!state.projectId && board.projects.length) {
     state.projectId = board.projects[0].id;
@@ -191,7 +192,7 @@ function renderSidebar() {
       'button',
       { class: `project-item${active ? ' active' : ''}`, type: 'button', onClick: () => selectProject(project.id) },
       el('span', { class: 'name', text: project.name }),
-      el('span', { class: 'meta', text: `${project.id} · ${project.features.length} feature(s)${project.owner ? ` · ${project.owner}` : ''}` }),
+      el('span', { class: 'meta', text: `${project.id} · ${project.features.length} feature(s)${project.owner ? ` · ${project.owner}` : ''}${project.archived ? ' · 归档' : ''}` }),
     );
     projectWrap.append(button);
   }
@@ -212,7 +213,7 @@ function renderSidebar() {
       el('span', { class: 'title', text: `${feature.id} · ${feature.title}` }),
       el('span', {
         class: 'meta',
-        text: `${feature.statuses.length} 状态 · ${feature.artifactCount} 产物 · ${feature.openQuestions} 问题`,
+        text: `${feature.statuses.length} 状态 · ${feature.artifactCount} 产物 · ${feature.openQuestions} 问题${feature.archived ? ' · 归档' : ''}`,
       }),
     );
     featureWrap.append(button);
@@ -446,6 +447,23 @@ function bindUi() {
   });
 
   $('#logout').addEventListener('click', () => logout());
+
+  const archiveToggle = $('#archive-toggle');
+  if (archiveToggle) {
+    archiveToggle.textContent = state.includeArchived ? '隐藏归档' : '显示归档';
+    archiveToggle.addEventListener('click', async () => {
+      state.includeArchived = !state.includeArchived;
+      const url = new URL(location.href);
+      if (state.includeArchived) url.searchParams.set('includeArchived', '1');
+      else url.searchParams.delete('includeArchived');
+      history.replaceState(null, '', url);
+      archiveToggle.textContent = state.includeArchived ? '隐藏归档' : '显示归档';
+      state.projectId = null;
+      state.featureId = null;
+      state.ctx = null;
+      await refreshBoard(false).catch((error) => showToast(error.message));
+    });
+  }
 }
 
 void boot();

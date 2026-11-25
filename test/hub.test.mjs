@@ -127,4 +127,32 @@ test('hub: register, project, feature, status, artifacts, questions, board', asy
   assert.equal(board.status, 200);
   assert.equal(board.body.projects.length, 1);
   assert.equal(board.body.projects[0].features.length, 1);
+
+  const archivedFeature = await json(await fetch(`${base}/api/features/FEAT-001/archive`, {
+    method: 'POST', headers: auth, body: JSON.stringify({ archived: true }),
+  }));
+  assert.equal(archivedFeature.status, 200);
+  assert.equal(archivedFeature.body.archived, true);
+  const hidden = await json(await fetch(`${base}/api/board`, { headers: auth }));
+  assert.equal(hidden.body.projects[0].features.length, 0);
+  const shown = await json(await fetch(`${base}/api/board?includeArchived=1`, { headers: auth }));
+  assert.equal(shown.body.projects[0].features.length, 1);
+  const blocked = await fetch(`${base}/api/features/FEAT-001/status`, {
+    method: 'POST', headers: auth, body: JSON.stringify({ state: 'implementing' }),
+  });
+  assert.equal(blocked.status, 409, 'archived feature must reject writes');
+
+  const restoredFeature = await json(await fetch(`${base}/api/features/FEAT-001/archive`, {
+    method: 'POST', headers: auth, body: JSON.stringify({ archived: false }),
+  }));
+  assert.equal(restoredFeature.body.archived, false);
+
+  const archivedProject = await json(await fetch(`${base}/api/projects/shop/archive`, {
+    method: 'POST', headers: auth, body: JSON.stringify({ archived: true }),
+  }));
+  assert.equal(archivedProject.body.archived, true);
+  const noProjects = await json(await fetch(`${base}/api/board`, { headers: auth }));
+  assert.equal(noProjects.body.projects.length, 0);
+  const allProjects = await json(await fetch(`${base}/api/board?includeArchived=1`, { headers: auth }));
+  assert.equal(allProjects.body.projects.length, 1);
 });

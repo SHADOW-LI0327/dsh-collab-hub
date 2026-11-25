@@ -19,12 +19,14 @@ Usage:
   collab whoami
   collab token
   collab member reset --name A [--data ./data]
-  collab board [--json]
+  collab board [--include-archived] [--json]
 
   collab project create <id> --name <name> [--repos web,api] [--description ...]
-  collab project list
+  collab project list [--include-archived]
+  collab project archive <id> [--restore]
   collab feature create <project> <id> --title <title> [--repos web,api] [--brief ...]
-  collab feature list [project]
+  collab feature list [project] [--include-archived]
+  collab feature archive <id> [--restore]
 
   collab context <feature> [--since N] [--json]
   collab delta <feature> [--since N] [--json]
@@ -162,7 +164,7 @@ async function main() {
 
 	if (command === 'board') {
 		const instance = await client();
-		const board = await instance.board();
+		const board = await instance.board(Boolean(flags['include-archived']));
 		if (flags.json) console.log(JSON.stringify(board, null, 2));
 		else console.log(formatBoard(board));
 		return;
@@ -172,10 +174,17 @@ async function main() {
 		const sub = positionals.shift();
 		const instance = await client();
 		if (sub === 'list') {
-			const { projects } = await instance.projects();
+			const { projects } = await instance.projects(Boolean(flags['include-archived']));
 			for (const project of projects) {
-				console.log(`${project.id} · ${project.name} · ${project.featureCount} feature(s) · ${project.owner ?? '?'}`);
+				console.log(`${project.id} · ${project.name} · ${project.featureCount} feature(s) · ${project.owner ?? '?'}${project.archived ? ' · ARCHIVED' : ''}`);
 			}
+			return;
+		}
+		if (sub === 'archive') {
+			const id = positionals.shift();
+			if (!id) return die('project archive needs an id');
+			const project = await instance.archiveProject(id, !flags.restore);
+			console.log(`${project.archived ? 'archived' : 'restored'} project ${project.id}`);
 			return;
 		}
 		if (sub === 'create') {
@@ -190,17 +199,24 @@ async function main() {
 			console.log(`created project ${project.id} · ${project.name}`);
 			return;
 		}
-		return die('project commands: create | list');
+		return die('project commands: create | list | archive');
 	}
 
 	if (command === 'feature') {
 		const sub = positionals.shift();
 		const instance = await client();
 		if (sub === 'list') {
-			const { features } = await instance.features(positionals[0]);
+			const { features } = await instance.features(positionals[0], Boolean(flags['include-archived']));
 			for (const feature of features) {
-				console.log(`${feature.id} · ${feature.title} · ${feature.projectId} · ${feature.artifactCount} artifact(s) · ${feature.openQuestions} open question(s)`);
+				console.log(`${feature.id} · ${feature.title} · ${feature.projectId} · ${feature.artifactCount} artifact(s) · ${feature.openQuestions} open question(s)${feature.archived ? ' · ARCHIVED' : ''}`);
 			}
+			return;
+		}
+		if (sub === 'archive') {
+			const id = positionals.shift();
+			if (!id) return die('feature archive needs an id');
+			const feature = await instance.archiveFeature(id, !flags.restore);
+			console.log(`${feature.archived ? 'archived' : 'restored'} feature ${feature.id}`);
 			return;
 		}
 		if (sub === 'create') {
@@ -217,7 +233,7 @@ async function main() {
 			console.log(`created feature ${feature.id} · ${feature.title} (${feature.projectId})`);
 			return;
 		}
-		return die('feature commands: create | list');
+		return die('feature commands: create | list | archive');
 	}
 
 	if (command === 'context') {

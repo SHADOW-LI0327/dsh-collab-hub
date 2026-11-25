@@ -74,7 +74,7 @@ node bin/collab.mjs delta FEAT-001 --since 12
 
 MCP 会读 `~/.dsh/collab.json`；也可以显式给 `COLLAB_HUB_URL` + `COLLAB_TOKEN`。
 
-工具：`collab_context`、`collab_delta`、`collab_publish`、`collab_status`、`collab_question`、`collab_answer`、`collab_handoff`、`collab_project_create`、`collab_feature_create`、`collab_register`。
+工具：`collab_context`、`collab_delta`、`collab_publish`、`collab_status`、`collab_question`、`collab_answer`、`collab_handoff`、`collab_project_create`、`collab_feature_create`、`collab_project_archive`、`collab_feature_archive`、`collab_register`。
 
 #### 方式 B：dsh-process-kit（DSH 里直接用）
 
@@ -172,6 +172,35 @@ docker compose up -d --build
 ```
 
 数据在命名卷里，重建镜像不会丢。
+
+## 归档 / 恢复
+
+不做硬删除；项目或 feature 结束后用归档：
+
+```bash
+# 归档
+collab project archive yente
+collab feature archive SMB-001
+
+# 恢复
+collab project archive yente --restore
+collab feature archive SMB-001 --restore
+```
+
+API：
+
+```text
+POST /api/projects/<id>/archive   {"archived": true}
+POST /api/features/<id>/archive   {"archived": true}
+```
+
+规则：
+
+- 默认看板/`board()` 隐藏已归档项目和 feature；`?includeArchived=1` 或看板「显示归档」可查看；
+- 归档后 feature 变成**只读**：状态、产物、问题、交接都会被拒绝（HTTP 409）；
+- 数据、产物、问题、事件全部保留，可恢复；
+- 项目归档会隐藏整个项目；feature 的 `archived` 状态独立保留；
+- Web 看板仍只读，归档/恢复走 CLI 或 MCP。
 
 ## 数据模型
 

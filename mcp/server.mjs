@@ -127,6 +127,32 @@ const TOOLS = [
 		},
 	},
 	{
+		name: 'collab_project_archive',
+		description: 'Archive or restore a project. Archived projects are hidden from the default board but keep all data; use this instead of deleting.',
+		inputSchema: {
+			type: 'object',
+			properties: {
+				id: { type: 'string' },
+				archived: { type: 'boolean', description: 'true to archive (default), false to restore' },
+			},
+			required: ['id'],
+			additionalProperties: false,
+		},
+	},
+	{
+		name: 'collab_feature_archive',
+		description: 'Archive or restore a feature. Archived features are hidden from the default board and become read-only; use this instead of deleting.',
+		inputSchema: {
+			type: 'object',
+			properties: {
+				id: { type: 'string' },
+				archived: { type: 'boolean', description: 'true to archive (default), false to restore' },
+			},
+			required: ['id'],
+			additionalProperties: false,
+		},
+	},
+	{
 		name: 'collab_feature_create',
 		description: 'Create a feature under a project. The feature id is the shared handle both sides use.',
 		inputSchema: {
@@ -227,6 +253,14 @@ async function callTool(name, args) {
 				brief: args.brief ?? '',
 			});
 			return text(`created feature ${feature.id} · ${feature.title}`);
+		}
+		case 'collab_project_archive': {
+			const project = await instance.archiveProject(args.id, args.archived !== false);
+			return text(`${project.archived ? 'archived' : 'restored'} project ${project.id}`);
+		}
+		case 'collab_feature_archive': {
+			const feature = await instance.archiveFeature(args.id, args.archived !== false);
+			return text(`${feature.archived ? 'archived' : 'restored'} feature ${feature.id}`);
 		}
 		default:
 			return text(`unknown tool: ${name}`, true);

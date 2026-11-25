@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: dsh-collab-hub:0.1.1
+    image: dsh-collab-hub:0.2.0
     container_name: dsh-collab-hub
     restart: unless-stopped
     init: true

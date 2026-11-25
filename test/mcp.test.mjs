@@ -51,7 +51,7 @@ test('mcp: initialize, list tools, read context and update status', async (t) =>
   const init = await send('initialize', {});
   assert.equal(init.result.serverInfo.name, 'dsh-collab-hub');
   const tools = await send('tools/list', {});
-  assert.equal(tools.result.tools.length, 10);
+  assert.equal(tools.result.tools.length, 12);
   assert.ok(tools.result.tools.some((tool) => tool.name === 'collab_context'));
 
   const context = await send('tools/call', { name: 'collab_context', arguments: { feature: 'F' } });
