@@ -15,6 +15,16 @@
         <label>成员 token（由 collab register 生成）<input name="token" required placeholder="col_..."></label>
         <button type="submit">进入看板</button>
       </form>
+
+      <section class="mcp-help">
+        <div class="mcp-help__head">
+          <span>把这个发给你的 Agent</span>
+          <button id="copy-mcp" class="small secondary" type="button">复制</button>
+        </div>
+        <p class="muted">Hub 通过 MCP 接入。复制下面这段给 coding agent，让它写入本机 DSH 的 MCP 配置；token 会自动使用你上面填写的值。</p>
+        <pre id="mcp-snippet" class="mcp-snippet"></pre>
+        <p class="muted">token 可用 <code>collab token</code> 获取；不要把 token 提交到 git。</p>
+      </section>
       <p id="login-error" class="error" hidden></p>
     </div>
   </section>

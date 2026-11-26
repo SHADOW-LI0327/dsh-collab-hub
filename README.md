@@ -24,7 +24,7 @@ node bin/collab.mjs hub --host 0.0.0.0 --port 8787 --data ./data
 - 数据在 `./data`：`state.json` + `blobs/`，备份这个目录即可。
 - 内网没有 TLS 时，建议只绑定内网网卡；要跨网段再加 Caddy/Nginx。
 
-打开 `http://<server>:8787`，粘贴成员 token 即可进入只读看板；项目和 feature 由 CLI / Agent 创建。
+打开 `http://<server>:8787`，粘贴成员 token 即可进入只读看板；项目和 feature 由 CLI / Agent 创建。登录页还提供一段可复制的 MCP 配置提示，填好 token 后直接发给 Agent 即可接入。
 
 ### 2. 创建项目 / feature
 

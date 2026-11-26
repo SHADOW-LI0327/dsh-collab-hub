@@ -429,7 +429,57 @@ async function boot() {
   }
 }
 
+function mcpSnippet(token) {
+  const origin = location.origin.replace(/\/$/, '');
+  const value = String(token || '').trim() || '<YOUR_MEMBER_TOKEN>';
+  return `请把下面这个 Hub MCP server 加到我的 DSH 配置（~/.dsh/profiles/desktop/cordis.patch.yml 或 Settings → MCP），然后重启 DSH：
+
+- id: mcp-collab
+  name: '@deepseek-ai/dsh-mcp-client'
+  config:
+    serverName: collab
+    transport: streamable-http
+    url: ${origin}/mcp
+    headers:
+      Authorization: 'Bearer ${value}'
+    toolCallTimeoutMs: 60000
+
+如果已经有 mcp-collab，替换它；不要把 token 提交到 git。`;
+}
+
+function updateMcpSnippet() {
+  const input = document.querySelector('#token-form input[name="token"]');
+  const output = $('#mcp-snippet');
+  if (output) output.textContent = mcpSnippet(input?.value ?? '');
+}
+
+function bindMcpSnippet() {
+  const input = document.querySelector('#token-form input[name="token"]');
+  const copy = $('#copy-mcp');
+  if (input) input.addEventListener('input', updateMcpSnippet);
+  if (copy) {
+    copy.addEventListener('click', async () => {
+      const text = $('#mcp-snippet')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('已复制，可直接粘给 Agent');
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents($('#mcp-snippet'));
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        showToast('已复制，可直接粘给 Agent');
+      }
+    });
+  }
+  updateMcpSnippet();
+}
+
 function bindUi() {
+  bindMcpSnippet();
+
   $('#token-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const token = new FormData(event.currentTarget).get('token').trim();

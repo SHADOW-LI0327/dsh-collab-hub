@@ -1,11 +1,11 @@
 # dsh-collab-hub — zero-dependency Node service.
-# Build:  docker build -t dsh-collab-hub:0.4.0 .
-# Run:    docker run -d --name dsh-collab-hub -p 8787:8787 -v hub-data:/data dsh-collab-hub:0.4.0
+# Build:  docker build -t dsh-collab-hub:0.5.0 .
+# Run:    docker run -d --name dsh-collab-hub -p 8787:8787 -v hub-data:/data dsh-collab-hub:0.5.0
 FROM node:24-slim
 
 LABEL org.opencontainers.image.title="dsh-collab-hub"
 LABEL org.opencontainers.image.description="Intranet collaboration hub for DSH process teams"
-LABEL org.opencontainers.image.version="0.4.0"
+LABEL org.opencontainers.image.version="0.5.0"
 
 ENV NODE_ENV=production
 WORKDIR /app

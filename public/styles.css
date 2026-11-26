@@ -67,7 +67,7 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospac
 .brand { font-weight: 700; letter-spacing: .02em; font-size: 18px; }
 .login { min-height: 100%; display: grid; place-items: center; padding: 24px; }
 .login-card {
-  width: min(440px, 100%);
+  width: min(620px, 100%);
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -77,6 +77,21 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospac
 .login-card p { margin: 8px 0 18px; }
 .stack { display: grid; gap: 10px; }
 .token-details { margin-top: 16px; color: var(--muted); }
+.mcp-help { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.mcp-help__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
+.mcp-help p { margin: 8px 0; font-size: 12px; }
+.mcp-snippet {
+  margin: 10px 0;
+  padding: 12px;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font: 11.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre;
+  color: var(--text);
+}
 .token-details summary { cursor: pointer; font-size: 12px; }
 
 .app { min-height: 100%; display: flex; flex-direction: column; }
