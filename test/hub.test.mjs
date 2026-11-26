@@ -26,6 +26,7 @@ test('hub: register, project, feature, status, artifacts, questions, board', asy
   assert.equal(spec.status, 200);
   assert.equal(spec.body.openapi, '3.1.0');
   assert.ok(spec.body.paths['/api/features/{id}/context']);
+  assert.ok(spec.body.paths['/mcp']);
 
   const unauth = await fetch(`${base}/api/board`);
   assert.equal(unauth.status, 401);

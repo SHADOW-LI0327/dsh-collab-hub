@@ -103,6 +103,37 @@ hub_link(project="shop", feature="FEAT-001")
 
 `docs/process` 和 journal 仍是每个仓库的真源；Hub 只做跨仓库的上下文层。
 
+## MCP 接入
+
+Hub 同时提供 **Streamable HTTP MCP**，不需要把 MCP 进程放到每个成员机器上。
+
+DSH 配置示例：
+
+```yaml
+- id: mcp-collab
+  name: '@deepseek-ai/dsh-mcp-client'
+  config:
+    serverName: collab
+    transport: streamable-http
+    url: http://<server>:8787/mcp
+    headers:
+      Authorization: 'Bearer ${credential:COLLAB_TOKEN}'
+    toolCallTimeoutMs: 60000
+```
+
+工具名形如：
+
+```text
+mcp__collab__collab_context
+mcp__collab__collab_publish
+mcp__collab__collab_status
+mcp__collab__collab_question
+```
+
+也可以继续用 stdio 方式（`node mcp/server.mjs`），适合单机或没有 MCP 管理器的客户端。
+
+`GET /api` 的 `mcp` 字段会同时列出 `/mcp`、stdio 入口和工具名。
+
 ## Docker 部署
 
 仓库自带 `Dockerfile` 和 `docker-compose.yml`，零 npm 依赖：
