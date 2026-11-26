@@ -21,7 +21,16 @@
           <span>把这个发给你的 Agent</span>
           <button id="copy-mcp" class="small secondary" type="button">复制</button>
         </div>
-        <p class="muted">Hub 通过 MCP 接入。复制下面这段给 coding agent，让它写入本机 DSH 的 MCP 配置；token 会自动使用你上面填写的值。</p>
+        <p class="muted">Hub 通过 MCP 接入，DSH / Claude Code / Cursor / Codex 等客户端都可以用。选一个格式，复制给 coding agent；token 会自动使用你上面填写的值。</p>
+        <div class="mcp-help__format">
+          <label>客户端格式
+            <select id="mcp-client">
+              <option value="generic">通用（Claude / Cursor / Codex…）</option>
+              <option value="dsh">DSH</option>
+              <option value="stdio">本地 stdio</option>
+            </select>
+          </label>
+        </div>
         <pre id="mcp-snippet" class="mcp-snippet"></pre>
         <p class="muted">token 可用 <code>collab token</code> 获取；不要把 token 提交到 git。</p>
       </section>

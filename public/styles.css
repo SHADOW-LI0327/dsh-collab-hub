@@ -80,6 +80,9 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospac
 .mcp-help { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .mcp-help__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
 .mcp-help p { margin: 8px 0; font-size: 12px; }
+.mcp-help__format { display: flex; justify-content: flex-end; margin: 6px 0; }
+.mcp-help__format label { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.mcp-help__format select { width: auto; min-width: 230px; padding: 4px 8px; }
 .mcp-snippet {
   margin: 10px 0;
   padding: 12px;

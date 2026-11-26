@@ -105,9 +105,29 @@ hub_link(project="shop", feature="FEAT-001")
 
 ## MCP 接入
 
-Hub 同时提供 **Streamable HTTP MCP**，不需要把 MCP 进程放到每个成员机器上。
+Hub 提供 **Streamable HTTP MCP**，任何支持 MCP 的客户端都可以接：
 
-DSH 配置示例：
+```text
+URL:    http://<server>:8787/mcp
+Transport: Streamable HTTP
+Header: Authorization: Bearer <member token>
+```
+
+通用 `mcpServers` 配置（Claude Code / Cursor 等）：
+
+```json
+{
+  "mcpServers": {
+    "collab": {
+      "type": "http",
+      "url": "http://<server>:8787/mcp",
+      "headers": { "Authorization": "Bearer <member token>" }
+    }
+  }
+}
+```
+
+DSH 使用 `@deepseek-ai/dsh-mcp-client`：
 
 ```yaml
 - id: mcp-collab
@@ -121,20 +141,11 @@ DSH 配置示例：
     toolCallTimeoutMs: 60000
 ```
 
-工具名形如：
+工具名由客户端加 namespace，例如 `mcp__collab__collab_context`。
 
-```text
-mcp__collab__collab_context
-mcp__collab__collab_publish
-mcp__collab__collab_status
-mcp__collab__collab_question
-```
+登录页也提供可复制的提示：填入 token、选客户端格式，复制给 Agent 即可。
 
-也可以继续用 stdio 方式（`node mcp/server.mjs`），适合单机或没有 MCP 管理器的客户端。
-
-`GET /api` 的 `mcp` 字段会同时列出 `/mcp`、stdio 入口和工具名。
-
-## Docker 部署
+## Docker 部署## Docker 部署
 
 仓库自带 `Dockerfile` 和 `docker-compose.yml`，零 npm 依赖：
 

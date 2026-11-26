@@ -429,34 +429,79 @@ async function boot() {
   }
 }
 
-function mcpSnippet(token) {
+function mcpSnippet(token, format = 'generic') {
   const origin = location.origin.replace(/\/$/, '');
+  const endpoint = `${origin}/mcp`;
   const value = String(token || '').trim() || '<YOUR_MEMBER_TOKEN>';
-  return `请把下面这个 Hub MCP server 加到我的 DSH 配置（~/.dsh/profiles/desktop/cordis.patch.yml 或 Settings → MCP），然后重启 DSH：
+  if (format === 'dsh') {
+    return `请把下面这个 Hub MCP server 加到我的 DSH 配置（~/.dsh/profiles/desktop/cordis.patch.yml 或 Settings → MCP），然后重启 DSH：
 
 - id: mcp-collab
   name: '@deepseek-ai/dsh-mcp-client'
   config:
     serverName: collab
     transport: streamable-http
-    url: ${origin}/mcp
+    url: ${endpoint}
     headers:
       Authorization: 'Bearer ${value}'
     toolCallTimeoutMs: 60000
 
 如果已经有 mcp-collab，替换它；不要把 token 提交到 git。`;
+  }
+  if (format === 'stdio') {
+    return `如果客户端只支持本地 stdio MCP，用下面的配置（把路径换成你机器上的 dsh-collab-hub）：
+
+{
+  "mcpServers": {
+    "collab": {
+      "command": "node",
+      "args": ["/path/to/dsh-collab-hub/mcp/server.mjs"],
+      "env": {
+        "COLLAB_HUB_URL": "${origin}",
+        "COLLAB_TOKEN": "${value}"
+      }
+    }
+  }
+}
+
+不要把 token 提交到 git；能连 HTTP 的客户端优先用 Streamable HTTP。`;
+  }
+  return `请把下面这个 MCP server 接入我当前使用的客户端（Claude Code / Claude Desktop / Cursor / Codex / DSH 等）。
+
+传输方式: Streamable HTTP
+URL: ${endpoint}
+请求头: Authorization: Bearer ${value}
+
+支持 mcpServers 的客户端（Claude Code / Cursor 等）可直接用：
+
+{
+  "mcpServers": {
+    "collab": {
+      "type": "http",
+      "url": "${endpoint}",
+      "headers": {
+        "Authorization": "Bearer ${value}"
+      }
+    }
+  }
+}
+
+如果客户端不支持远程 HTTP，请用它的 mcp-remote / stdio 桥接方式；不要把 token 提交到 git。`;
 }
 
 function updateMcpSnippet() {
   const input = document.querySelector('#token-form input[name="token"]');
+  const format = $('#mcp-client')?.value ?? 'generic';
   const output = $('#mcp-snippet');
-  if (output) output.textContent = mcpSnippet(input?.value ?? '');
+  if (output) output.textContent = mcpSnippet(input?.value ?? '', format);
 }
 
 function bindMcpSnippet() {
   const input = document.querySelector('#token-form input[name="token"]');
   const copy = $('#copy-mcp');
   if (input) input.addEventListener('input', updateMcpSnippet);
+  const format = $('#mcp-client');
+  if (format) format.addEventListener('change', updateMcpSnippet);
   if (copy) {
     copy.addEventListener('click', async () => {
       const text = $('#mcp-snippet')?.textContent ?? '';
